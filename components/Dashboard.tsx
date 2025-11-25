@@ -7,6 +7,9 @@ import { Thermometer, Droplets, Sun, Ruler } from 'lucide-react';
 import { SensorReading } from '../types';
 
 // Mock data generation for demonstration
+// POZNÁMKA PRE ŠTUDENTOV:
+// V ostrej prevádzke nahradíme túto funkciu volaním ThingSpeak API:
+// https://api.thingspeak.com/channels/CHANNEL_ID/feeds.json?results=20
 const generateHistoryData = (): SensorReading[] => {
   const data: SensorReading[] = [];
   const now = new Date();
@@ -37,11 +40,13 @@ export const Dashboard: React.FC = () => {
   const [currentReadings, setCurrentReadings] = useState<SensorReading | null>(null);
 
   useEffect(() => {
+    // 1. Načítanie historických dát
     const data = generateHistoryData();
     setHistoryData(data);
     setCurrentReadings(data[data.length - 1]);
 
-    // Simulate "Live" updates
+    // 2. Simulácia "Live" aktualizácií (pre Arduino/ESP8266)
+    // V reálnom projekte tu bude fetch() na ThingSpeak každých 15 sekúnd
     const interval = setInterval(() => {
       setCurrentReadings(prev => {
         if (!prev) return null;
@@ -57,7 +62,11 @@ export const Dashboard: React.FC = () => {
     return () => clearInterval(interval);
   }, []);
 
-  if (!currentReadings) return <div>Načítavam dáta zo senzorov...</div>;
+  if (!currentReadings) return (
+    <div className="flex items-center justify-center h-64">
+      <div className="text-leaf-600 font-medium animate-pulse">Načítavam dáta zo senzorov...</div>
+    </div>
+  );
 
   return (
     <div className="space-y-8 animate-fade-in">
